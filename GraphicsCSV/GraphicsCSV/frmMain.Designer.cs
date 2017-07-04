@@ -208,6 +208,7 @@
             this.cmbFileSelected.Name = "cmbFileSelected";
             this.cmbFileSelected.Size = new System.Drawing.Size(200, 28);
             this.cmbFileSelected.TabIndex = 2;
+            this.cmbFileSelected.SelectedIndexChanged += new System.EventHandler(this.cmbFileSelected_SelectedIndexChanged);
             // 
             // cmbBaseTime
             // 
@@ -227,6 +228,7 @@
             this.btnApply.TabIndex = 4;
             this.btnApply.Text = "Apply";
             this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
             // frmMain
             // 
@@ -237,6 +239,7 @@
             this.MainMenuStrip = this.msMain;
             this.Name = "frmMain";
             this.Text = "Graphics CSV";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).EndInit();
             this.tlpPanel.ResumeLayout(false);
             this.tlpPanel.PerformLayout();
