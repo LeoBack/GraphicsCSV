@@ -87,7 +87,7 @@ namespace GraphicsCSV
             {
                 oData = oCsv.ReadFileCSV(classManager.Headers.Disable, fileLog);
                 tsslStatus.Text = "Cantidad de registros en el Log: " + Convert.ToString(oData.Rows.Count);
-                this.Text = "ArduiniLog - " + Path.GetFileName(fileLog);
+                this.Text = "GraphicsCSV - " + Path.GetFileName(fileLog);
             }
         }
 
@@ -120,30 +120,53 @@ namespace GraphicsCSV
             DataGridViewTextBoxColumn colName = new DataGridViewTextBoxColumn();
             colName.Name = "Nombre";
             colName.DataPropertyName = "NameItem";
-            colName.ReadOnly = true;
+            colName.ReadOnly = false;
             dgvList.Columns.Add(colName);
 
             DataGridViewTextBoxColumn colColor = new DataGridViewTextBoxColumn();
             colColor.Name = "Color";
             colColor.DataPropertyName = "ColorItem";
-
             colColor.ReadOnly = true;
             dgvList.Columns.Add(colColor);
 
             DataGridViewCheckBoxColumn colChk = new DataGridViewCheckBoxColumn();
             colChk.Name = "Mostrar";
             colChk.DataPropertyName = "ChkItem";
-            colChk.ReadOnly = true;
+            colChk.ReadOnly = false;
+            colChk.ThreeState = false;
             dgvList.Columns.Add(colChk);
 
             dgvList.RowHeadersVisible = false;
             dgvList.AutoGenerateColumns = false;
             dgvList.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvList.BorderStyle = BorderStyle.Fixed3D;
+            dgvList.BorderStyle = BorderStyle.FixedSingle;
             dgvList.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvList.MultiSelect = false;
-            dgvList.ReadOnly = true;
+            dgvList.ReadOnly = false;
+            // Solo cuando cambio el contenido y preciono Enter
+            dgvList.CellValueChanged += dgvList_CellValueChanged;
+            // Solo cuando cambia el contenido 
+            dgvList.CurrentCellDirtyStateChanged += dgvList_CurrentCellDirtyStateChanged;
+            // 
             dgvList.DataError += dgvList_DataError;
+        }
+
+        void dgvList_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            string A = "";
+            foreach (DataGridViewRow row in dgvList.Rows)
+            {
+                if (Convert.ToString(row.Cells[3].Value) == "")
+                    row.Cells[3].Value = false;
+
+                A += row.Cells[3].Value.ToString() + "\n";
+            }
+            MessageBox.Show("Cambio algo en la Grilla\nCurrentCellDirtyStateChanged\n" + A);
+        }
+
+        void dgvList_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            MessageBox.Show("Cambio algo en la Grilla\nCellValueChanged");
         }
 
         private void dgvList_DataError(object sender, DataGridViewDataErrorEventArgs e)

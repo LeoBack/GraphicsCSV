@@ -71,27 +71,27 @@ namespace GraphicsCSV
         public DataTable PreLoad()
         {
             DataTable dtPreLoad = new DataTable("PreLoad");
-            dtPreLoad.Columns.Add("Id");
-            dtPreLoad.Columns.Add("Name");
-            dtPreLoad.Columns.Add("Color");
-            dtPreLoad.Columns.Add("Chk");
+            dtPreLoad.Columns.Add("IdItem");
+            dtPreLoad.Columns.Add("NameItem");
+            dtPreLoad.Columns.Add("ColorItem");
+            dtPreLoad.Columns.Add("ChkItem");
 
             DataRow drRow = dtPreLoad.NewRow();
             drRow[0] = 1;
             drRow[1] = "A";
-            drRow[2] = Color.Blue;
+            drRow[2] = Color.Blue.Name;
             drRow[3] = true;
             dtPreLoad.Rows.Add(drRow);
             drRow = dtPreLoad.NewRow();
             drRow[0] = 2;
             drRow[1] = "B";
-            drRow[2] = Color.Red;
+            drRow[2] = Color.Red.Name;
             drRow[3] = true;
             dtPreLoad.Rows.Add(drRow);
             drRow = dtPreLoad.NewRow();
             drRow[0] = 3;
             drRow[1] = "C";
-            drRow[2] = Color.Green;
+            drRow[2] = Color.Green.Name;
             drRow[3] = true;
             dtPreLoad.Rows.Add(drRow);
 
@@ -106,7 +106,7 @@ namespace GraphicsCSV
 
         public override string ToString()
         {
-            return "Id= " + idItem + ", Name= " + NameItem + ", Color= " + ColorItem.ToArgb().ToString() + ", Cheked= " + ChkItem.ToString();
+            return "Id= " + idItem + ", Name= " + NameItem + ", Color= " + ColorItem.Name + ", Cheked= " + ChkItem.ToString();
         }
 
         #endregion
