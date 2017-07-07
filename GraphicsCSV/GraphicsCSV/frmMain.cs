@@ -88,6 +88,8 @@ namespace GraphicsCSV
                 oData = oCsv.ReadFileCSV(classManager.Headers.Disable, fileLog);
                 tsslStatus.Text = "Cantidad de registros en el Log: " + Convert.ToString(oData.Rows.Count);
                 this.Text = "GraphicsCSV - " + Path.GetFileName(fileLog);
+                //
+                Process(oData);
             }
         }
 
@@ -203,5 +205,60 @@ namespace GraphicsCSV
         }
 
         #endregion
+
+        private void Process(DataTable dt)
+        {
+            /*
+             * 1 - Definir el rango de fechas a promediar (x Hora, x cada 30min, etc)
+             * 2 - Construir la nueva tabla para confeccionar el grafico.
+             */
+            int cError = 0;
+            int cNoError = 0;
+
+            DataTable dtResult = new DataTable("Result");
+
+            foreach (DataColumn column in dt.Columns)
+                dtResult.Columns.Add(new DataColumn(column.ColumnName));
+
+            foreach (DataRow row in dt.Rows)
+            {
+                // Columna Fecha
+                DateTime newDate = new DateTime();
+                if (Convert.ToString(row[0]) != "")
+                {
+                    string colDateTime = Convert.ToString(row[0]).Replace('-', ','); // Dia,Mes,Año-Hora,Min,Seg
+                    string[] nDateTime = colDateTime.Split(',');             // @"2017,7,6-19,07,30";
+                    
+                    try
+                    {
+                        newDate = new DateTime(
+                            Convert.ToInt32(nDateTime[0]),
+                            Convert.ToInt32(nDateTime[1]),
+                            Convert.ToInt32(nDateTime[2]),
+                            Convert.ToInt32(nDateTime[3]),
+                            Convert.ToInt32(nDateTime[4]),
+                            Convert.ToInt32(nDateTime[5]));
+                        cNoError++;
+                    }
+                    catch (IndexOutOfRangeException) { cError++; }
+                    catch (FormatException) { cError++; }
+                }
+
+                // Columna Temperatura
+                Double colT = Convert.ToDouble(row[1]);
+
+                // Columna Humedad
+                Double colH = Convert.ToDouble(row[2]);
+
+                DataRow newRow = dtResult.NewRow();
+                newRow[0] = newDate;
+                newRow[1] = colT;
+                newRow[2] = colH;
+                dtResult.Rows.Add(newRow);
+            }
+
+            MessageBox.Show("Registros Procesados con Exito: " + dtResult.Rows.Count.ToString()  
+                + "\nCampo fecha:\n\tCorrectos= " + cNoError.ToString() +"\n\tErrores = " + cError.ToString());
+        }
     }
 }
