@@ -12,37 +12,10 @@ namespace GraphicsCSV
     {
         #region Atributos y Propiedades
 
-        private int idItem;
-
-        public int IdItem
-        {
-            get { return idItem; }
-            set { idItem = value; }
-        }
-
-        private string nameItem;
-
-        public string NameItem
-        {
-            get { return nameItem; }
-            set { nameItem = value; }
-        }
-
-        private Color colorItem;
-
-        public Color ColorItem
-        {
-            get { return colorItem; }
-            set { colorItem = value; }
-        }
-
-        private bool chkItem;
-
-        public bool ChkItem
-        {
-            get { return chkItem; }
-            set { chkItem = value; }
-        }
+        public int IdItem { set; get; }
+        public string NameItem { set; get; }
+        public Color ColorItem { set; get; }
+        public bool ChkItem { set; get; }
 
         #endregion
 
@@ -106,7 +79,7 @@ namespace GraphicsCSV
 
         public override string ToString()
         {
-            return "Id= " + idItem + ", Name= " + NameItem + ", Color= " + ColorItem.Name + ", Cheked= " + ChkItem.ToString();
+            return "Id= " + IdItem + ", Name= " + NameItem + ", Color= " + ColorItem.Name + ", Cheked= " + ChkItem.ToString();
         }
 
         #endregion

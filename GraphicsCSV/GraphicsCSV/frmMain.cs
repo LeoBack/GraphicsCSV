@@ -18,8 +18,11 @@ namespace GraphicsCSV
         #region Atributos y propiedades
 
         classManager oCsv = new classManager();
-        DataTable oData = new DataTable("Logs");
         classItems Items = new classItems();
+        //
+        BackgroundWorker bkProcess;
+        DataTable oData;
+        DataTable dtResult;
 
         string pathLog = Path.Combine(Application.StartupPath, "Logs");
         string fileLog = string.Empty;
@@ -32,18 +35,28 @@ namespace GraphicsCSV
         public frmMain()
         {
             InitializeComponent();
-
+            //
+            bkProcess = new BackgroundWorker();
+            bkProcess.DoWork += bkProcess_DoWork;
+            bkProcess.ProgressChanged += bkProcess_ProgressChanged;
+            bkProcess.RunWorkerCompleted += bkProcess_RunWorkerCompleted;
+            bkProcess.WorkerReportsProgress = true;
+            bkProcess.WorkerSupportsCancellation = true;
+            //
             if (!Directory.Exists(pathLog))
                 Directory.CreateDirectory(pathLog);
         }
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+            //
+            tsslProcessStatus.Text = "Waiting";
+            tsslDescription.Text = "Select a file and apply";
             // cmbFileSelected
             string[] files = Directory.GetFiles(pathLog, "*.csv", SearchOption.TopDirectoryOnly);
             if (files.Length != 0)
                 cmbFileSelected.Items.AddRange(OnlyNamefile(files));
-            cmbFileSelected.Items.Add("Abrir Directorio");
+            cmbFileSelected.Items.Add("Open Directory");
 
             // cmbBaseTime
             cmbBaseTime.Items.AddRange(filter);
@@ -85,12 +98,21 @@ namespace GraphicsCSV
         {
             if (fileLog != "")
             {
+                Text = "GraphicsCSV - " + Path.GetFileName(fileLog);
                 oData = oCsv.ReadFileCSV(classManager.Headers.Disable, fileLog);
-                tsslStatus.Text = "Cantidad de registros en el Log: " + Convert.ToString(oData.Rows.Count);
-                this.Text = "GraphicsCSV - " + Path.GetFileName(fileLog);
-                //
-                Process(oData);
+                StarProcess();
             }
+        }
+
+        private void tsmiStop_Click(object sender, EventArgs e)
+        {
+            if (bkProcess.WorkerSupportsCancellation == true)
+                bkProcess.CancelAsync();
+        }
+
+        private void tsmiDetails_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(strDetail.ToString());
         }
 
         #endregion
@@ -206,59 +228,129 @@ namespace GraphicsCSV
 
         #endregion
 
-        private void Process(DataTable dt)
+        #region bkProgess
+
+        void StarProcess()
         {
-            /*
-             * 1 - Definir el rango de fechas a promediar (x Hora, x cada 30min, etc)
-             * 2 - Construir la nueva tabla para confeccionar el grafico.
-             */
-            int cError = 0;
-            int cNoError = 0;
+            tsslDescription.Text = "";
+            if (bkProcess.IsBusy != true)
+            {
+                tsslProcessStatus.Text = "Loaded";
+                tspbProgress.Maximum = oData.Rows.Count;
+                bkProcess.RunWorkerAsync();
+            }
+        }
 
-            DataTable dtResult = new DataTable("Result");
+        StringBuilder strDetail = new StringBuilder();
 
-            foreach (DataColumn column in dt.Columns)
+        void bkProcess_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled == true)
+            {
+                tsslProcessStatus.Text = "Cancelled";
+                tspbProgress.Value = 0;
+                tsslStatus.Text = "0 %";
+                tsslDescription.Text = "Records: " + oData.Rows.Count.ToString();
+                strDetail.Clear();
+                strDetail.AppendLine("Canceled by user request.");
+            }
+            else if (e.Error != null)
+            {
+                tsslProcessStatus.Text = "Error";
+                tspbProgress.Value = 0;
+                tsslStatus.Text = "0 %";
+                strDetail.Clear();
+                strDetail.AppendLine("Error message with process.");
+                strDetail.AppendLine(e.Error.Message);
+            }
+            else
+            {
+                tsslProcessStatus.Text = "Finalized";
+                tsslDescription.Text = "Records: " + oData.Rows.Count.ToString();
+                tspbProgress.Value = 0;
+                tsslStatus.Text = "0 %";          
+                strDetail.Clear();
+                strDetail.AppendLine("Records Successfully Processed: " + dtResult.Rows.Count.ToString());
+                strDetail.AppendLine("Date field: Correct = " + cNoError.ToString());
+                strDetail.AppendLine("Date field: Mistakes = " + cError.ToString());    
+            }
+        }
+
+        void bkProcess_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            tsslProcessStatus.Text = "Working";
+            tsslDescription.Text = "Records: " + e.ProgressPercentage.ToString() + "/" + oData.Rows.Count.ToString();
+            tsslStatus.Text = (((e.ProgressPercentage * 100) / oData.Rows.Count).ToString() + " %");
+            tspbProgress.Value = e.ProgressPercentage;
+        }
+
+        int cError = 0;
+        int cNoError = 0;
+        void bkProcess_DoWork(object sender, DoWorkEventArgs e)
+        {
+            cError = 0;
+            cNoError = 0;
+            int cRow = 0;
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            dtResult = new DataTable("Result");
+
+            foreach (DataColumn column in oData.Columns)
                 dtResult.Columns.Add(new DataColumn(column.ColumnName));
 
-            foreach (DataRow row in dt.Rows)
+            foreach (DataRow row in oData.Rows)
             {
-                // Columna Fecha
-                DateTime newDate = new DateTime();
-                if (Convert.ToString(row[0]) != "")
+                worker.ReportProgress(++cRow);
+
+                if (worker.CancellationPending == true)
                 {
-                    string colDateTime = Convert.ToString(row[0]).Replace('-', ','); // Dia,Mes,Año-Hora,Min,Seg
-                    string[] nDateTime = colDateTime.Split(',');             // @"2017,7,6-19,07,30";
-                    
-                    try
-                    {
-                        newDate = new DateTime(
-                            Convert.ToInt32(nDateTime[0]),
-                            Convert.ToInt32(nDateTime[1]),
-                            Convert.ToInt32(nDateTime[2]),
-                            Convert.ToInt32(nDateTime[3]),
-                            Convert.ToInt32(nDateTime[4]),
-                            Convert.ToInt32(nDateTime[5]));
-                        cNoError++;
-                    }
-                    catch (IndexOutOfRangeException) { cError++; }
-                    catch (FormatException) { cError++; }
+                    e.Cancel = true;
+                    dtResult = null;
+                    break;
                 }
+                else
+                {
+                    // Columna Fecha
+                    DateTime newDate = new DateTime();
+                    if (Convert.ToString(row[0]) != "")
+                    {
+                        // Dia,Mes,Año-Hora,Min,Seg ( @"2017,7,6-19,07,30"; )
+                        string colDateTime = Convert.ToString(row[0]).Replace('-', ','); 
+                        string[] nDateTime = colDateTime.Split(',');             
 
-                // Columna Temperatura
-                Double colT = Convert.ToDouble(row[1]);
+                        try
+                        {
+                            newDate = new DateTime(
+                                Convert.ToInt32(nDateTime[0]),
+                                Convert.ToInt32(nDateTime[1]),
+                                Convert.ToInt32(nDateTime[2]),
+                                Convert.ToInt32(nDateTime[3]),
+                                Convert.ToInt32(nDateTime[4]),
+                                Convert.ToInt32(nDateTime[5]));
+                            cNoError++;
+                        }
+                        catch (IndexOutOfRangeException) { cError++; }
+                        catch (FormatException) { cError++; }
+                    }
 
-                // Columna Humedad
-                Double colH = Convert.ToDouble(row[2]);
+                    // Columna Temperatura
+                    Double colT = Convert.ToDouble(row[1]);
 
-                DataRow newRow = dtResult.NewRow();
-                newRow[0] = newDate;
-                newRow[1] = colT;
-                newRow[2] = colH;
-                dtResult.Rows.Add(newRow);
+                    // Columna Humedad
+                    Double colH = Convert.ToDouble(row[2]);
+
+                    // Nueva Tabla
+                    DataRow newRow = dtResult.NewRow();
+                    newRow[0] = newDate;
+                    newRow[1] = colT;
+                    newRow[2] = colH;
+                    dtResult.Rows.Add(newRow);
+                }
             }
-
-            MessageBox.Show("Registros Procesados con Exito: " + dtResult.Rows.Count.ToString()  
-                + "\nCampo fecha:\n\tCorrectos= " + cNoError.ToString() +"\n\tErrores = " + cError.ToString());
         }
+
+        #endregion
+
+
     }
 }
