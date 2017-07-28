@@ -10,6 +10,7 @@ using System.Windows.Forms;
 //
 using libCsv;
 using System.IO;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace GraphicsCSV
 {
@@ -52,17 +53,20 @@ namespace GraphicsCSV
             //
             tsslProcessStatus.Text = "Waiting";
             tsslDescription.Text = "Select a file and apply";
+            showRunProcess(false);
+            //
+            initDataView();
+            initGraphicStatistical();
+            //
             // cmbFileSelected
             string[] files = Directory.GetFiles(pathLog, "*.csv", SearchOption.TopDirectoryOnly);
             if (files.Length != 0)
-                cmbFileSelected.Items.AddRange(OnlyNamefile(files));
-            cmbFileSelected.Items.Add("Open Directory");
+                tscmbFileSelected.Items.AddRange(OnlyNamefile(files));
+            tscmbFileSelected.Items.Add("Open Directory");
 
             // cmbBaseTime
-            cmbBaseTime.Items.AddRange(filter);
+            tscmbBaseTime.Items.AddRange(filter);
 
-            // Grilla
-            initDataView();
             GetDataView(Items.PreLoad());
         }
 
@@ -70,9 +74,9 @@ namespace GraphicsCSV
 
         #region Eventos
 
-        private void cmbFileSelected_SelectedIndexChanged(object sender, EventArgs e)
+        private void tscmbFileSelected_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbFileSelected.SelectedIndex == cmbFileSelected.Items.Count - 1)
+            if (tscmbFileSelected.SelectedIndex == tscmbFileSelected.Items.Count - 1)
             {
                 OpenFileDialog oF = new OpenFileDialog();
                 oF.InitialDirectory = pathLog;
@@ -89,12 +93,12 @@ namespace GraphicsCSV
                 int cfile = 0;
                 string[] files = Directory.GetFiles(pathLog, "*.csv", SearchOption.TopDirectoryOnly);
                 fileLog = files[cfile];
-                while (Convert.ToString(cmbFileSelected.SelectedItem) != Path.GetFileName(fileLog))
+                while (Convert.ToString(tscmbFileSelected.SelectedItem) != Path.GetFileName(fileLog))
                     fileLog = files[cfile++];
             }
         }
 
-        private void btnApply_Click(object sender, EventArgs e)
+        private void tsbtnApply_Click(object sender, EventArgs e)
         {
             if (fileLog != "")
             {
@@ -104,34 +108,126 @@ namespace GraphicsCSV
             }
         }
 
+        private void tsbtnDetails_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(strDetail.ToString());
+        }
+
         private void tsmiStop_Click(object sender, EventArgs e)
         {
             if (bkProcess.WorkerSupportsCancellation == true)
                 bkProcess.CancelAsync();
         }
 
-        private void tsmiDetails_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show(strDetail.ToString());
-        }
-
         #endregion
 
-        #region  Metodos
+        // OK - 28/07/17
+        #region Graphic
 
-        private string[] OnlyNamefile(string[] files)
+        /// <summary>
+        /// OK - 28/07/17
+        /// Habilita la funcion de Zoom para el Grafico.
+        /// </summary>
+        /// <param name="Enabled"></param>
+        void ZoomToggle(bool Enabled)
         {
-            string[] sP = new string[files.Length];
+            // Enable range selection and zooming end user interface
+            chrGraphicStatistical.ChartAreas["ChartArea1"].CursorX.IsUserEnabled = Enabled;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].CursorX.IsUserSelectionEnabled = Enabled;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].CursorX.Interval = 0;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.ScaleView.Zoomable = Enabled;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.ScrollBar.IsPositionedInside = true;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.ScrollBar.ButtonStyle = System.Windows.Forms.DataVisualization.Charting.ScrollBarButtonStyles.ResetZoom;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.ScaleView.SmallScrollMinSize = 0;
 
-            for (int C = 0; C < files.Length; C++)
-                sP[C] = Path.GetFileName(files[C]);
-
-            return sP;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].CursorY.IsUserEnabled = Enabled;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].CursorY.IsUserSelectionEnabled = Enabled;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].CursorY.Interval = 0;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisY.ScaleView.Zoomable = Enabled;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisY.ScrollBar.IsPositionedInside = true;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisY.ScrollBar.ButtonStyle = System.Windows.Forms.DataVisualization.Charting.ScrollBarButtonStyles.ResetZoom;
+            chrGraphicStatistical.ChartAreas["ChartArea1"].AxisY.ScaleView.SmallScrollMinSize = 0;
+            if (Enabled == false)
+            {
+                //Remove the cursor lines
+                chrGraphicStatistical.ChartAreas["ChartArea1"].CursorX.SetCursorPosition(double.NaN);
+                chrGraphicStatistical.ChartAreas["ChartArea1"].CursorY.SetCursorPosition(double.NaN);
+            }
         }
 
+        /// <summary>
+        /// OK - 28/07/17
+        /// Inicializa el Grafico.
+        /// </summary>
+        void initGraphicStatistical()
+        {
+            chrGraphicStatistical.Series.Clear();
+            chrGraphicStatistical.Titles.Add("Monitor");
+            chrGraphicStatistical.Palette = ChartColorPalette.Excel;
+            chrGraphicStatistical.ContextMenuStrip = cmsGraphics;
+            ZoomToggle(true);
+        }
+
+        /// <summary>
+        /// OK - 28/07/17
+        /// Recarga el grafico.
+        /// </summary>
+        void RefreshGraphicStatistical()
+        {
+            chrGraphicStatistical.DataSource = null;
+            chrGraphicStatistical.Series.Clear();
+            chrGraphicStatistical.DataSource = dtResult;
+
+            foreach(DataColumn fColumn in dtResult.Columns)
+            {
+                if (fColumn.ColumnName != dtResult.Columns[0].ColumnName)
+                {
+                    chrGraphicStatistical.Series.Add(fColumn.ColumnName);
+                    chrGraphicStatistical.Series[fColumn.ColumnName].ChartType = SeriesChartType.Line;
+                    chrGraphicStatistical.Series[fColumn.ColumnName].YValueMembers = fColumn.ColumnName;
+                    chrGraphicStatistical.Series[fColumn.ColumnName].XValueMember = dtResult.Columns[0].ColumnName;
+                    chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.Interval = 10;
+                    chrGraphicStatistical.DataBind();
+                    //chrGraphicStatistical.Series[fColumn.ColumnName].Color = this.ColorData1;
+                }
+            }
+        }
+
+        /// <summary>
+        /// OK - 28/07/17
+        /// Evento: Exportar el grafico como imagen.
+        /// </summary>
+        private void tsmiExportImage_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveGraphic = new SaveFileDialog();
+            saveGraphic.Filter = "jpeg Imagen|*.jpg|Bitmap Imagen|*.bmp|PNG Imagen|*.png";
+            saveGraphic.Title = "Guardar Grafico en Imagen";
+            saveGraphic.ShowDialog();
+
+            if (saveGraphic.FileName != "")
+            {
+                System.IO.FileStream fs = (System.IO.FileStream)saveGraphic.OpenFile();
+                switch (saveGraphic.FilterIndex)
+                {
+                    case 1:
+                        this.chrGraphicStatistical.SaveImage(fs, ChartImageFormat.Jpeg);
+                        break;
+                    case 2:
+                        this.chrGraphicStatistical.SaveImage(fs, ChartImageFormat.Bmp);
+                        break;
+                    case 3:
+                        this.chrGraphicStatistical.SaveImage(fs, ChartImageFormat.Png);
+                        break;
+                }
+                fs.Close();
+            }
+        }
+        
         #endregion
 
+        // Revisar - 28/07/17
         #region Grilla
+
         private void initDataView()
         {
 #if DEBUG
@@ -199,7 +295,7 @@ namespace GraphicsCSV
             MessageBox.Show(this, e.Exception.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void GetDataView(DataTable data)
+        void GetDataView(DataTable data)
         {
             //SourceBinding.CurrentItemChanged -= SourceBinding_CurrentItemChanged;
             //dgvList.DataSource = null;
@@ -211,7 +307,7 @@ namespace GraphicsCSV
             CellColor(data);
         }
 
-        private void CellColor(DataTable dT)
+        void CellColor(DataTable dT)
         {
             //for (int P = 0; P < dgvList.Rows.Count; P++)
             //    dgvList.Rows[P].Cells[2].Style.BackColor = Color.FromName(Convert.ToString(dgvList.Rows[P].Cells[2].Value));
@@ -228,54 +324,73 @@ namespace GraphicsCSV
 
         #endregion
 
+        // OK - 28/07/17
         #region bkProgess
 
+        int cRecordsErrors = 0;
+        bool iError = false;
+        StringBuilder strDetail = new StringBuilder();
+
+        /// <summary>
+        /// OK - 28/07/17
+        /// Disparador de ejecucion del Subproceso.
+        /// </summary>
         void StarProcess()
         {
             tsslDescription.Text = "";
             if (bkProcess.IsBusy != true)
             {
+                showRunProcess(true);
                 tsslProcessStatus.Text = "Loaded";
                 tspbProgress.Maximum = oData.Rows.Count;
                 bkProcess.RunWorkerAsync();
             }
         }
 
-        StringBuilder strDetail = new StringBuilder();
-
+        /// <summary>
+        /// OK - 28/07/17
+        /// Evento cuando finaliza el Subproceso.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void bkProcess_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled == true)
             {
                 tsslProcessStatus.Text = "Cancelled";
-                tspbProgress.Value = 0;
-                tsslStatus.Text = "0 %";
                 tsslDescription.Text = "Records: " + oData.Rows.Count.ToString();
                 strDetail.Clear();
                 strDetail.AppendLine("Canceled by user request.");
+                MessageBox.Show(strDetail.ToString());
             }
             else if (e.Error != null)
             {
                 tsslProcessStatus.Text = "Error";
-                tspbProgress.Value = 0;
-                tsslStatus.Text = "0 %";
                 strDetail.Clear();
                 strDetail.AppendLine("Error message with process.");
                 strDetail.AppendLine(e.Error.Message);
+                MessageBox.Show(strDetail.ToString());
             }
             else
             {
                 tsslProcessStatus.Text = "Finalized";
                 tsslDescription.Text = "Records: " + oData.Rows.Count.ToString();
-                tspbProgress.Value = 0;
-                tsslStatus.Text = "0 %";          
                 strDetail.Clear();
-                strDetail.AppendLine("Records Successfully Processed: " + dtResult.Rows.Count.ToString());
-                strDetail.AppendLine("Date field: Correct = " + cNoError.ToString());
-                strDetail.AppendLine("Date field: Mistakes = " + cError.ToString());    
+                strDetail.AppendLine("Records Processed: " + oData.Rows.Count.ToString());
+                strDetail.AppendLine("Correct records = " + dtResult.Rows.Count.ToString());
+                strDetail.AppendLine("Records with errors = " + cRecordsErrors.ToString());
+                MessageBox.Show(strDetail.ToString());       
+                RefreshGraphicStatistical();
             }
+            showRunProcess(false);
         }
 
+        /// <summary>
+        /// OK - 28/07/17
+        /// Evento durante la ejecucion del Subproceso.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void bkProcess_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             tsslProcessStatus.Text = "Working";
@@ -284,12 +399,17 @@ namespace GraphicsCSV
             tspbProgress.Value = e.ProgressPercentage;
         }
 
-        int cError = 0;
-        int cNoError = 0;
+        /// <summary>
+        /// OK - 28/07/17
+        /// Evento del Subproceso.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void bkProcess_DoWork(object sender, DoWorkEventArgs e)
         {
-            cError = 0;
-            cNoError = 0;
+            cRecordsErrors = 0;
+            
+
             int cRow = 0;
             BackgroundWorker worker = sender as BackgroundWorker;
 
@@ -300,6 +420,7 @@ namespace GraphicsCSV
 
             foreach (DataRow row in oData.Rows)
             {
+                iError = false;
                 worker.ReportProgress(++cRow);
 
                 if (worker.CancellationPending == true)
@@ -310,47 +431,94 @@ namespace GraphicsCSV
                 }
                 else
                 {
-                    // Columna Fecha
-                    DateTime newDate = new DateTime();
-                    if (Convert.ToString(row[0]) != "")
-                    {
-                        // Dia,Mes,Año-Hora,Min,Seg ( @"2017,7,6-19,07,30"; )
-                        string colDateTime = Convert.ToString(row[0]).Replace('-', ','); 
-                        string[] nDateTime = colDateTime.Split(',');             
-
-                        try
-                        {
-                            newDate = new DateTime(
-                                Convert.ToInt32(nDateTime[0]),
-                                Convert.ToInt32(nDateTime[1]),
-                                Convert.ToInt32(nDateTime[2]),
-                                Convert.ToInt32(nDateTime[3]),
-                                Convert.ToInt32(nDateTime[4]),
-                                Convert.ToInt32(nDateTime[5]));
-                            cNoError++;
-                        }
-                        catch (IndexOutOfRangeException) { cError++; }
-                        catch (FormatException) { cError++; }
-                    }
-
-                    // Columna Temperatura
-                    Double colT = Convert.ToDouble(row[1]);
-
-                    // Columna Humedad
-                    Double colH = Convert.ToDouble(row[2]);
-
-                    // Nueva Tabla
                     DataRow newRow = dtResult.NewRow();
-                    newRow[0] = newDate;
-                    newRow[1] = colT;
-                    newRow[2] = colH;
-                    dtResult.Rows.Add(newRow);
+                    newRow[0] = processDateTime(row[0].ToString()).ToShortTimeString(); // Columna Fecha  
+                    newRow[1] = processNumber(row[1].ToString());   // Columna Temperatura
+                    newRow[2] = processNumber(row[2].ToString());   // Columna Humedad
+
+                    if (!iError)
+                        dtResult.Rows.Add(newRow);
+                    else
+                        cRecordsErrors++;
                 }
             }
         }
 
         #endregion
 
+        // OK - 28/07/17
+        #region  Metodos
 
+        /// <summary>
+        /// OK - 28/07/17
+        /// Mostrar o Ocultar los indicadores de proceso en ejecucion.
+        /// </summary>
+        /// <param name="Show"></param>
+        void showRunProcess(bool Show)
+        {
+            tspbProgress.Value = 0;
+            tspbProgress.Visible = Show;
+            tsslStatus.Text = "0 %";
+            tsslStatus.Visible = Show;
+            tsddbStop.Visible = Show;
+        }
+
+        /// <summary>
+        /// OK - 28/07/17
+        /// Devuelve: DateTime desde un string con el siguiente formato (2017,7,6-19,07,30).
+        /// </summary>
+        /// <param name="vDateTime"></param>
+        /// <returns></returns>
+        DateTime processDateTime(string vDateTime)
+        {
+            DateTime newDate = new DateTime();
+            if (vDateTime != "")
+            {
+                // Dia,Mes,Año-Hora,Min,Seg ( @"2017,7,6-19,07,30"; )
+                string colDateTime = vDateTime.Replace('-', ',');
+                string[] nDateTime = colDateTime.Split(',');
+
+                try
+                {
+                    newDate = new DateTime(
+                        Convert.ToInt32(nDateTime[0]),
+                        Convert.ToInt32(nDateTime[1]),
+                        Convert.ToInt32(nDateTime[2]),
+                        Convert.ToInt32(nDateTime[3]),
+                        Convert.ToInt32(nDateTime[4]),
+                        Convert.ToInt32(nDateTime[5]));
+                }
+                catch (IndexOutOfRangeException) { iError = true; }
+                catch (FormatException) { iError = true; }
+            }
+            return newDate;
+        }
+
+        /// <summary>
+        /// OK - 28/07/17
+        /// Devuelve: Numero con decimales. 
+        /// </summary>
+        /// <param name="vNumber"></param>
+        /// <returns></returns>
+        double processNumber(string vNumber)
+        {
+            return Convert.ToDouble(vNumber.Replace('.', ','));
+        }
+
+        /// <summary>
+        /// OK - 28/07/17
+        /// Devuelve: Array con solo los nombres de los archivos y extencion. 
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
+        string[] OnlyNamefile(string[] files)
+        {
+            string[] sP = new string[files.Length];
+            for (int C = 0; C < files.Length; C++)
+                sP[C] = Path.GetFileName(files[C]);
+            return sP;
+        }
+
+        #endregion
     }
 }

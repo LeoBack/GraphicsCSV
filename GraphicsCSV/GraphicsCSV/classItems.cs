@@ -12,10 +12,13 @@ namespace GraphicsCSV
     {
         #region Atributos y Propiedades
 
-        public int IdItem { set; get; }
-        public string NameItem { set; get; }
-        public Color ColorItem { set; get; }
-        public bool ChkItem { set; get; }
+        public enum Tdata { Number, Text, Date }
+
+        public int IdItem { set; get; }         // ID
+        public string NameItem { set; get; }    // Nombre
+        public Color ColorItem { set; get; }    // Color
+        public bool ChkItem { set; get; }       // Mostrar o Ocultar
+        public Tdata tData { set; get; }  // Tipo de Dato
 
         #endregion
 
@@ -27,14 +30,16 @@ namespace GraphicsCSV
             NameItem = string.Empty;
             ColorItem = Color.Blue;
             ChkItem = true;
+            tData = Tdata.Text;
         }
 
-        public classItems(int Id, string Name, Color Color, bool Chk)
+        public classItems(int Id, string Name, Color Color, bool Chk, Tdata Type)
         {
             IdItem = Id;
             NameItem = Name;
             ColorItem = Color;
             ChkItem = Chk;
+            tData = Type;
         }
 
         #endregion
@@ -48,32 +53,36 @@ namespace GraphicsCSV
             dtPreLoad.Columns.Add("NameItem");
             dtPreLoad.Columns.Add("ColorItem");
             dtPreLoad.Columns.Add("ChkItem");
+            dtPreLoad.Columns.Add("Type");
 
             DataRow drRow = dtPreLoad.NewRow();
             drRow[0] = 1;
-            drRow[1] = "A";
-            drRow[2] = Color.Blue.Name;
+            drRow[1] = "Date";
+            drRow[2] = Color.Gray.Name;
             drRow[3] = true;
+            drRow[4] = Tdata.Date;
             dtPreLoad.Rows.Add(drRow);
             drRow = dtPreLoad.NewRow();
             drRow[0] = 2;
-            drRow[1] = "B";
-            drRow[2] = Color.Red.Name;
+            drRow[1] = "Temperatura";
+            drRow[2] = Color.Orange.Name;
             drRow[3] = true;
+            drRow[4] = Tdata.Number;
             dtPreLoad.Rows.Add(drRow);
             drRow = dtPreLoad.NewRow();
             drRow[0] = 3;
-            drRow[1] = "C";
-            drRow[2] = Color.Green.Name;
+            drRow[1] = "Humedad";
+            drRow[2] = Color.Blue.Name;
             drRow[3] = true;
+            drRow[4] = Tdata.Number;
             dtPreLoad.Rows.Add(drRow);
 
             return dtPreLoad;
 
             //classItems[] lDate = new classItems[3];
-            //lDate[0] = new classItems(1, "A", Color.Blue, true);
-            //lDate[1] = new classItems(2, "B", Color.Red, true);
-            //lDate[2] = new classItems(3, "C", Color.Green, true);
+            //lDate[0] = new classItems(1, "A", Color.Blue, true, DataType.Text);
+            //lDate[1] = new classItems(2, "B", Color.Red, true, DataType.Text);
+            //lDate[2] = new classItems(3, "C", Color.Green, true, DataType.Text);
             //return lDate;
         }
 

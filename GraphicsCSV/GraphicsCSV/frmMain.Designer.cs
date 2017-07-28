@@ -28,10 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.dgvList = new System.Windows.Forms.DataGridView();
             this.tlpPanel = new System.Windows.Forms.TableLayoutPanel();
             this.msMain = new System.Windows.Forms.MenuStrip();
@@ -39,27 +40,27 @@
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             this.ssStatus = new System.Windows.Forms.StatusStrip();
             this.tsslProcessStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tsslDescription = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tspbProgress = new System.Windows.Forms.ToolStripProgressBar();
-            this.tsslDescription = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tsddbMenu = new System.Windows.Forms.ToolStripDropDownButton();
-            this.tsmiDetails = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiStop = new System.Windows.Forms.ToolStripMenuItem();
-            this.chrGraphic = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.pnlTools = new System.Windows.Forms.Panel();
-            this.tlpTools = new System.Windows.Forms.TableLayoutPanel();
-            this.btnApply = new System.Windows.Forms.Button();
-            this.lblFileSelected = new System.Windows.Forms.Label();
-            this.cmbFileSelected = new System.Windows.Forms.ComboBox();
-            this.lblBaseTime = new System.Windows.Forms.Label();
-            this.cmbBaseTime = new System.Windows.Forms.ComboBox();
+            this.tsddbStop = new System.Windows.Forms.ToolStripDropDownButton();
+            this.chrGraphicStatistical = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tslFile = new System.Windows.Forms.ToolStripLabel();
+            this.tscmbFileSelected = new System.Windows.Forms.ToolStripComboBox();
+            this.tslblBaseTime = new System.Windows.Forms.ToolStripLabel();
+            this.tscmbBaseTime = new System.Windows.Forms.ToolStripComboBox();
+            this.tsbtnApply = new System.Windows.Forms.ToolStripButton();
+            this.tsbtnDetails = new System.Windows.Forms.ToolStripButton();
+            this.cmsGraphics = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiExportImage = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dgvList)).BeginInit();
             this.tlpPanel.SuspendLayout();
             this.msMain.SuspendLayout();
             this.ssStatus.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chrGraphic)).BeginInit();
-            this.pnlTools.SuspendLayout();
-            this.tlpTools.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chrGraphicStatistical)).BeginInit();
+            this.toolStrip1.SuspendLayout();
+            this.cmsGraphics.SuspendLayout();
             this.SuspendLayout();
             // 
             // dgvList
@@ -68,11 +69,11 @@
             this.dgvList.AllowUserToDeleteRows = false;
             this.dgvList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvList.Location = new System.Drawing.Point(3, 439);
+            this.dgvList.Location = new System.Drawing.Point(3, 394);
             this.dgvList.Name = "dgvList";
             this.dgvList.ReadOnly = true;
             this.dgvList.RowTemplate.Height = 28;
-            this.dgvList.Size = new System.Drawing.Size(1131, 150);
+            this.dgvList.Size = new System.Drawing.Size(1181, 131);
             this.dgvList.TabIndex = 0;
             // 
             // tlpPanel
@@ -81,9 +82,9 @@
             this.tlpPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpPanel.Controls.Add(this.msMain, 0, 0);
             this.tlpPanel.Controls.Add(this.ssStatus, 0, 4);
-            this.tlpPanel.Controls.Add(this.chrGraphic, 0, 1);
+            this.tlpPanel.Controls.Add(this.chrGraphicStatistical, 0, 1);
             this.tlpPanel.Controls.Add(this.dgvList, 0, 3);
-            this.tlpPanel.Controls.Add(this.pnlTools, 0, 2);
+            this.tlpPanel.Controls.Add(this.toolStrip1, 0, 2);
             this.tlpPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpPanel.Location = new System.Drawing.Point(0, 0);
             this.tlpPanel.Name = "tlpPanel";
@@ -92,8 +93,9 @@
             this.tlpPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
             this.tlpPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tlpPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F));
-            this.tlpPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-            this.tlpPanel.Size = new System.Drawing.Size(1137, 630);
+            this.tlpPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
+            this.tlpPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpPanel.Size = new System.Drawing.Size(1187, 571);
             this.tlpPanel.TabIndex = 1;
             // 
             // msMain
@@ -103,7 +105,7 @@
             this.tsmiFile});
             this.msMain.Location = new System.Drawing.Point(0, 0);
             this.msMain.Name = "msMain";
-            this.msMain.Size = new System.Drawing.Size(1137, 32);
+            this.msMain.Size = new System.Drawing.Size(1187, 32);
             this.msMain.TabIndex = 2;
             this.msMain.Text = "menuStrip1";
             // 
@@ -126,13 +128,13 @@
             this.ssStatus.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.ssStatus.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsslProcessStatus,
+            this.tsslDescription,
             this.tsslStatus,
             this.tspbProgress,
-            this.tsddbMenu,
-            this.tsslDescription});
-            this.ssStatus.Location = new System.Drawing.Point(0, 600);
+            this.tsddbStop});
+            this.ssStatus.Location = new System.Drawing.Point(0, 540);
             this.ssStatus.Name = "ssStatus";
-            this.ssStatus.Size = new System.Drawing.Size(1137, 30);
+            this.ssStatus.Size = new System.Drawing.Size(1187, 31);
             this.ssStatus.TabIndex = 1;
             this.ssStatus.Text = "statusStrip1";
             // 
@@ -141,159 +143,141 @@
             this.tsslProcessStatus.AutoSize = false;
             this.tsslProcessStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsslProcessStatus.Name = "tsslProcessStatus";
-            this.tsslProcessStatus.Size = new System.Drawing.Size(80, 25);
+            this.tsslProcessStatus.Size = new System.Drawing.Size(80, 26);
             this.tsslProcessStatus.Text = "Process";
+            // 
+            // tsslDescription
+            // 
+            this.tsslDescription.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsslDescription.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tsslDescription.Name = "tsslDescription";
+            this.tsslDescription.Size = new System.Drawing.Size(808, 26);
+            this.tsslDescription.Spring = true;
+            this.tsslDescription.Text = "Description";
             // 
             // tsslStatus
             // 
             this.tsslStatus.AutoSize = false;
             this.tsslStatus.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.tsslStatus.Name = "tsslStatus";
-            this.tsslStatus.Size = new System.Drawing.Size(45, 25);
+            this.tsslStatus.Size = new System.Drawing.Size(45, 26);
             this.tsslStatus.Text = "0%";
             // 
             // tspbProgress
             // 
+            this.tspbProgress.AutoSize = false;
             this.tspbProgress.Name = "tspbProgress";
-            this.tspbProgress.Size = new System.Drawing.Size(100, 24);
+            this.tspbProgress.Size = new System.Drawing.Size(100, 25);
             // 
-            // tsslDescription
+            // tsddbStop
             // 
-            this.tsslDescription.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsslDescription.Name = "tsslDescription";
-            this.tsslDescription.Size = new System.Drawing.Size(102, 25);
-            this.tsslDescription.Text = "Description";
+            this.tsddbStop.Image = ((System.Drawing.Image)(resources.GetObject("tsddbStop.Image")));
+            this.tsddbStop.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddbStop.Name = "tsddbStop";
+            this.tsddbStop.Size = new System.Drawing.Size(91, 29);
+            this.tsddbStop.Text = "Stop";
+            this.tsddbStop.Click += new System.EventHandler(this.tsmiStop_Click);
             // 
-            // tsddbMenu
+            // chrGraphicStatistical
             // 
-            this.tsddbMenu.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsddbMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiDetails,
-            this.tsmiStop});
-            this.tsddbMenu.Image = ((System.Drawing.Image)(resources.GetObject("tsddbMenu.Image")));
-            this.tsddbMenu.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsddbMenu.Name = "tsddbMenu";
-            this.tsddbMenu.Size = new System.Drawing.Size(42, 28);
-            this.tsddbMenu.Text = "toolStripDropDownButton1";
+            chartArea1.Name = "ChartArea1";
+            this.chrGraphicStatistical.ChartAreas.Add(chartArea1);
+            this.chrGraphicStatistical.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.Name = "Legend1";
+            this.chrGraphicStatistical.Legends.Add(legend1);
+            this.chrGraphicStatistical.Location = new System.Drawing.Point(3, 35);
+            this.chrGraphicStatistical.Name = "chrGraphicStatistical";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chrGraphicStatistical.Series.Add(series1);
+            this.chrGraphicStatistical.Size = new System.Drawing.Size(1181, 313);
+            this.chrGraphicStatistical.TabIndex = 3;
+            this.chrGraphicStatistical.Text = "chrGraphicStatistical";
             // 
-            // tsmiDetails
+            // toolStrip1
             // 
-            this.tsmiDetails.Name = "tsmiDetails";
-            this.tsmiDetails.Size = new System.Drawing.Size(210, 30);
-            this.tsmiDetails.Text = "Details";
-            this.tsmiDetails.Click += new System.EventHandler(this.tsmiDetails_Click);
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tslFile,
+            this.tscmbFileSelected,
+            this.tslblBaseTime,
+            this.tscmbBaseTime,
+            this.tsbtnApply,
+            this.tsbtnDetails});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 351);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1187, 33);
+            this.toolStrip1.TabIndex = 5;
+            this.toolStrip1.Text = "toolStrip1";
             // 
-            // tsmiStop
+            // tslFile
             // 
-            this.tsmiStop.Name = "tsmiStop";
-            this.tsmiStop.Size = new System.Drawing.Size(210, 30);
-            this.tsmiStop.Text = "Stop";
-            this.tsmiStop.Click += new System.EventHandler(this.tsmiStop_Click);
+            this.tslFile.AutoSize = false;
+            this.tslFile.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tslFile.Name = "tslFile";
+            this.tslFile.Size = new System.Drawing.Size(70, 30);
+            this.tslFile.Text = "File";
+            this.tslFile.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // chrGraphic
+            // tscmbFileSelected
             // 
-            chartArea2.Name = "ChartArea1";
-            this.chrGraphic.ChartAreas.Add(chartArea2);
-            this.chrGraphic.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend2.Name = "Legend1";
-            this.chrGraphic.Legends.Add(legend2);
-            this.chrGraphic.Location = new System.Drawing.Point(3, 35);
-            this.chrGraphic.Name = "chrGraphic";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.chrGraphic.Series.Add(series2);
-            this.chrGraphic.Size = new System.Drawing.Size(1131, 358);
-            this.chrGraphic.TabIndex = 3;
-            this.chrGraphic.Text = "chrGraphic";
+            this.tscmbFileSelected.Name = "tscmbFileSelected";
+            this.tscmbFileSelected.Size = new System.Drawing.Size(140, 33);
+            this.tscmbFileSelected.SelectedIndexChanged += new System.EventHandler(this.tscmbFileSelected_SelectedIndexChanged);
             // 
-            // pnlTools
+            // tslblBaseTime
             // 
-            this.pnlTools.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlTools.Controls.Add(this.tlpTools);
-            this.pnlTools.Location = new System.Drawing.Point(3, 399);
-            this.pnlTools.Name = "pnlTools";
-            this.pnlTools.Size = new System.Drawing.Size(1131, 34);
-            this.pnlTools.TabIndex = 4;
+            this.tslblBaseTime.AutoSize = false;
+            this.tslblBaseTime.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tslblBaseTime.Name = "tslblBaseTime";
+            this.tslblBaseTime.Size = new System.Drawing.Size(100, 30);
+            this.tslblBaseTime.Text = "BaseTime";
+            this.tslblBaseTime.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // tlpTools
+            // tscmbBaseTime
             // 
-            this.tlpTools.ColumnCount = 5;
-            this.tlpTools.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 75F));
-            this.tlpTools.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpTools.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 110F));
-            this.tlpTools.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpTools.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.tlpTools.Controls.Add(this.btnApply, 4, 0);
-            this.tlpTools.Controls.Add(this.lblFileSelected, 0, 0);
-            this.tlpTools.Controls.Add(this.cmbFileSelected, 1, 0);
-            this.tlpTools.Controls.Add(this.lblBaseTime, 2, 0);
-            this.tlpTools.Controls.Add(this.cmbBaseTime, 3, 0);
-            this.tlpTools.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpTools.Location = new System.Drawing.Point(0, 0);
-            this.tlpTools.Name = "tlpTools";
-            this.tlpTools.RowCount = 1;
-            this.tlpTools.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpTools.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.tlpTools.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.tlpTools.Size = new System.Drawing.Size(1131, 34);
-            this.tlpTools.TabIndex = 0;
+            this.tscmbBaseTime.Name = "tscmbBaseTime";
+            this.tscmbBaseTime.Size = new System.Drawing.Size(140, 33);
             // 
-            // btnApply
+            // tsbtnApply
             // 
-            this.btnApply.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.btnApply.Location = new System.Drawing.Point(1034, 4);
-            this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(93, 26);
-            this.btnApply.TabIndex = 4;
-            this.btnApply.Text = "Apply";
-            this.btnApply.UseVisualStyleBackColor = true;
-            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            this.tsbtnApply.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnApply.Image")));
+            this.tsbtnApply.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnApply.Name = "tsbtnApply";
+            this.tsbtnApply.Size = new System.Drawing.Size(87, 30);
+            this.tsbtnApply.Text = "Apply";
+            this.tsbtnApply.Click += new System.EventHandler(this.tsbtnApply_Click);
             // 
-            // lblFileSelected
+            // tsbtnDetails
             // 
-            this.lblFileSelected.AutoSize = true;
-            this.lblFileSelected.Location = new System.Drawing.Point(3, 0);
-            this.lblFileSelected.Name = "lblFileSelected";
-            this.lblFileSelected.Size = new System.Drawing.Size(34, 20);
-            this.lblFileSelected.TabIndex = 0;
-            this.lblFileSelected.Text = "File";
-            this.lblFileSelected.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.tsbtnDetails.Image = ((System.Drawing.Image)(resources.GetObject("tsbtnDetails.Image")));
+            this.tsbtnDetails.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbtnDetails.Name = "tsbtnDetails";
+            this.tsbtnDetails.Size = new System.Drawing.Size(85, 30);
+            this.tsbtnDetails.Text = "Detail";
+            this.tsbtnDetails.Click += new System.EventHandler(this.tsbtnDetails_Click);
             // 
-            // cmbFileSelected
+            // cmsGraphics
             // 
-            this.cmbFileSelected.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmbFileSelected.FormattingEnabled = true;
-            this.cmbFileSelected.Location = new System.Drawing.Point(78, 3);
-            this.cmbFileSelected.Name = "cmbFileSelected";
-            this.cmbFileSelected.Size = new System.Drawing.Size(417, 28);
-            this.cmbFileSelected.TabIndex = 2;
-            this.cmbFileSelected.SelectedIndexChanged += new System.EventHandler(this.cmbFileSelected_SelectedIndexChanged);
+            this.cmsGraphics.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.cmsGraphics.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiExportImage});
+            this.cmsGraphics.Name = "cmsGraphics";
+            this.cmsGraphics.Size = new System.Drawing.Size(216, 34);
             // 
-            // lblBaseTime
+            // tsmiExportImage
             // 
-            this.lblBaseTime.AutoSize = true;
-            this.lblBaseTime.Location = new System.Drawing.Point(501, 0);
-            this.lblBaseTime.Name = "lblBaseTime";
-            this.lblBaseTime.Size = new System.Drawing.Size(80, 20);
-            this.lblBaseTime.TabIndex = 1;
-            this.lblBaseTime.Text = "BaseTime";
-            this.lblBaseTime.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cmbBaseTime
-            // 
-            this.cmbBaseTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmbBaseTime.FormattingEnabled = true;
-            this.cmbBaseTime.Location = new System.Drawing.Point(611, 3);
-            this.cmbBaseTime.Name = "cmbBaseTime";
-            this.cmbBaseTime.Size = new System.Drawing.Size(417, 28);
-            this.cmbBaseTime.TabIndex = 3;
+            this.tsmiExportImage.Name = "tsmiExportImage";
+            this.tsmiExportImage.Size = new System.Drawing.Size(215, 30);
+            this.tsmiExportImage.Text = "Exportar Imagen";
+            this.tsmiExportImage.Click += new System.EventHandler(this.tsmiExportImage_Click);
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1137, 630);
+            this.ClientSize = new System.Drawing.Size(1187, 571);
             this.Controls.Add(this.tlpPanel);
             this.MainMenuStrip = this.msMain;
             this.Name = "frmMain";
@@ -306,10 +290,10 @@
             this.msMain.PerformLayout();
             this.ssStatus.ResumeLayout(false);
             this.ssStatus.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chrGraphic)).EndInit();
-            this.pnlTools.ResumeLayout(false);
-            this.tlpTools.ResumeLayout(false);
-            this.tlpTools.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chrGraphicStatistical)).EndInit();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
+            this.cmsGraphics.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -323,20 +307,20 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiExit;
         private System.Windows.Forms.StatusStrip ssStatus;
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chrGraphic;
-        private System.Windows.Forms.Panel pnlTools;
-        private System.Windows.Forms.TableLayoutPanel tlpTools;
-        private System.Windows.Forms.Button btnApply;
-        private System.Windows.Forms.Label lblFileSelected;
-        private System.Windows.Forms.ComboBox cmbFileSelected;
-        private System.Windows.Forms.Label lblBaseTime;
-        private System.Windows.Forms.ComboBox cmbBaseTime;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chrGraphicStatistical;
         private System.Windows.Forms.ToolStripProgressBar tspbProgress;
         private System.Windows.Forms.ToolStripStatusLabel tsslDescription;
-        private System.Windows.Forms.ToolStripDropDownButton tsddbMenu;
-        private System.Windows.Forms.ToolStripMenuItem tsmiStop;
+        private System.Windows.Forms.ToolStripDropDownButton tsddbStop;
         private System.Windows.Forms.ToolStripStatusLabel tsslProcessStatus;
-        private System.Windows.Forms.ToolStripMenuItem tsmiDetails;
+        private System.Windows.Forms.ContextMenuStrip cmsGraphics;
+        private System.Windows.Forms.ToolStripMenuItem tsmiExportImage;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripLabel tslFile;
+        private System.Windows.Forms.ToolStripComboBox tscmbFileSelected;
+        private System.Windows.Forms.ToolStripLabel tslblBaseTime;
+        private System.Windows.Forms.ToolStripComboBox tscmbBaseTime;
+        private System.Windows.Forms.ToolStripButton tsbtnApply;
+        private System.Windows.Forms.ToolStripButton tsbtnDetails;
     }
 }
 
