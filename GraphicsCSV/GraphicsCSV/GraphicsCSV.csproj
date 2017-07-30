@@ -48,7 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="classItems.cs" />
+    <Compile Include="classItemsPropierties.cs" />
+    <Compile Include="classStatistics.cs" />
+    <Compile Include="frmItemsPropierties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmItemsPropierties.Designer.cs">
+      <DependentUpon>frmItemsPropierties.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -57,6 +64,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmItemsPropierties.resx">
+      <DependentUpon>frmItemsPropierties.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>

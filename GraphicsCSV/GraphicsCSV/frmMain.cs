@@ -18,16 +18,18 @@ namespace GraphicsCSV
     {
         #region Atributos y propiedades
 
-        classManager oCsv = new classManager();
-        classItems Items = new classItems();
+        classManager oCsv;
+        List<classItemsPropierties> lItemPropierties;
+        List<classStatistics> lStatistics;
         //
         BackgroundWorker bkProcess;
-        DataTable oData;
+        DataTable dtData;
         DataTable dtResult;
-
+        //
         string pathLog = Path.Combine(Application.StartupPath, "Logs");
         string fileLog = string.Empty;
         string[] filter = { "15 minutos", "30 minutos", "60 minutos" };
+        bool PrimeraLectura = true;
 
         #endregion
 
@@ -36,6 +38,9 @@ namespace GraphicsCSV
         public frmMain()
         {
             InitializeComponent();
+            oCsv = new classManager();
+            lItemPropierties = new List<classItemsPropierties>();
+            lStatistics = new List<classStatistics>();
             //
             bkProcess = new BackgroundWorker();
             bkProcess.DoWork += bkProcess_DoWork;
@@ -50,7 +55,6 @@ namespace GraphicsCSV
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            //
             tsslProcessStatus.Text = "Waiting";
             tsslDescription.Text = "Select a file and apply";
             showRunProcess(false);
@@ -63,11 +67,8 @@ namespace GraphicsCSV
             if (files.Length != 0)
                 tscmbFileSelected.Items.AddRange(OnlyNamefile(files));
             tscmbFileSelected.Items.Add("Open Directory");
-
             // cmbBaseTime
             tscmbBaseTime.Items.AddRange(filter);
-
-            GetDataView(Items.PreLoad());
         }
 
         #endregion
@@ -103,7 +104,7 @@ namespace GraphicsCSV
             if (fileLog != "")
             {
                 Text = "GraphicsCSV - " + Path.GetFileName(fileLog);
-                oData = oCsv.ReadFileCSV(classManager.Headers.Disable, fileLog);
+                dtData = oCsv.ReadFileCSV(classManager.Headers.Disable, fileLog);
                 StarProcess();
             }
         }
@@ -119,13 +120,18 @@ namespace GraphicsCSV
                 bkProcess.CancelAsync();
         }
 
+        private void tsmiExit_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
         #endregion
 
-        // OK - 28/07/17
+        // OK - 17/07/28
         #region Graphic
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Habilita la funcion de Zoom para el Grafico.
         /// </summary>
         /// <param name="Enabled"></param>
@@ -156,7 +162,7 @@ namespace GraphicsCSV
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Inicializa el Grafico.
         /// </summary>
         void initGraphicStatistical()
@@ -169,7 +175,7 @@ namespace GraphicsCSV
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Recarga el grafico.
         /// </summary>
         void RefreshGraphicStatistical()
@@ -186,7 +192,7 @@ namespace GraphicsCSV
                     chrGraphicStatistical.Series[fColumn.ColumnName].ChartType = SeriesChartType.Line;
                     chrGraphicStatistical.Series[fColumn.ColumnName].YValueMembers = fColumn.ColumnName;
                     chrGraphicStatistical.Series[fColumn.ColumnName].XValueMember = dtResult.Columns[0].ColumnName;
-                    chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.Interval = 10;
+                    chrGraphicStatistical.ChartAreas["ChartArea1"].AxisX.Interval = 1;
                     chrGraphicStatistical.DataBind();
                     //chrGraphicStatistical.Series[fColumn.ColumnName].Color = this.ColorData1;
                 }
@@ -194,7 +200,7 @@ namespace GraphicsCSV
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Evento: Exportar el grafico como imagen.
         /// </summary>
         private void tsmiExportImage_Click(object sender, EventArgs e)
@@ -225,86 +231,91 @@ namespace GraphicsCSV
         
         #endregion
 
-        // Revisar - 28/07/17
+        // Revisar - 17/07/28
         #region Grilla
 
         private void initDataView()
         {
-#if DEBUG
             DataGridViewTextBoxColumn colId = new DataGridViewTextBoxColumn();
             colId.Name = "Item";
-            colId.DataPropertyName = "IdItem";
+            colId.DataPropertyName = "Id";
             colId.ReadOnly = true;
+            colId.Visible = false;
             dgvList.Columns.Add(colId);
-#endif
+
             DataGridViewTextBoxColumn colName = new DataGridViewTextBoxColumn();
             colName.Name = "Nombre";
-            colName.DataPropertyName = "NameItem";
-            colName.ReadOnly = false;
+            colName.DataPropertyName = "Name";
+            colName.ReadOnly = true;
             dgvList.Columns.Add(colName);
 
-            DataGridViewTextBoxColumn colColor = new DataGridViewTextBoxColumn();
-            colColor.Name = "Color";
-            colColor.DataPropertyName = "ColorItem";
-            colColor.ReadOnly = true;
-            dgvList.Columns.Add(colColor);
+            DataGridViewTextBoxColumn colMin = new DataGridViewTextBoxColumn();
+            colMin.Name = "Min";
+            colMin.DataPropertyName = "Min";
+            colMin.ReadOnly = true;
+            dgvList.Columns.Add(colMin);
 
-            DataGridViewCheckBoxColumn colChk = new DataGridViewCheckBoxColumn();
-            colChk.Name = "Mostrar";
-            colChk.DataPropertyName = "ChkItem";
-            colChk.ReadOnly = false;
-            colChk.ThreeState = false;
-            dgvList.Columns.Add(colChk);
+            DataGridViewTextBoxColumn colMax = new DataGridViewTextBoxColumn();
+            colMax.Name = "Max";
+            colMax.DataPropertyName = "Max";
+            colMax.ReadOnly = true;
+            dgvList.Columns.Add(colMax);
+
+            DataGridViewTextBoxColumn colAvg = new DataGridViewTextBoxColumn();
+            colAvg.Name = "Avg";
+            colAvg.DataPropertyName = "Avg";
+            colAvg.ReadOnly = true;
+            dgvList.Columns.Add(colAvg);
+
+            DataGridViewButtonColumn colBtn = new DataGridViewButtonColumn();
+            colBtn.Name = "Edit";
+            colBtn.Text = "Propiedades";
+            colBtn.UseColumnTextForButtonValue = true;
+            colBtn.Width = 80;
+            dgvList.Columns.Add(colBtn);
 
             dgvList.RowHeadersVisible = false;
             dgvList.AutoGenerateColumns = false;
             dgvList.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvList.BorderStyle = BorderStyle.FixedSingle;
-            dgvList.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvList.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             dgvList.MultiSelect = false;
             dgvList.ReadOnly = false;
-            // Solo cuando cambio el contenido y preciono Enter
-            dgvList.CellValueChanged += dgvList_CellValueChanged;
-            // Solo cuando cambia el contenido 
-            dgvList.CurrentCellDirtyStateChanged += dgvList_CurrentCellDirtyStateChanged;
-            // 
-            dgvList.DataError += dgvList_DataError;
+            dgvList.CellContentClick += dgvList_CellContentClick;
         }
 
-        void dgvList_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        /// <summary>
+        /// OK - 17/07/30
+        /// Evento ventana propiedades de la columna a graficar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dgvList_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            string A = "";
-            foreach (DataGridViewRow row in dgvList.Rows)
+            var senderGrid = (DataGridView)sender;
+
+            if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
-                if (Convert.ToString(row.Cells[3].Value) == "")
-                    row.Cells[3].Value = false;
-
-                A += row.Cells[3].Value.ToString() + "\n";
+                frmItemProperties frmProperties = new frmItemProperties(lItemPropierties[e.RowIndex]);
+                if (frmProperties.ShowDialog() == DialogResult.OK)
+                {
+                    lItemPropierties[e.RowIndex] = frmProperties.oItems;
+                    PrimeraLectura = false;
+                    StarProcess();
+                }
             }
-            MessageBox.Show("Cambio algo en la Grilla\nCurrentCellDirtyStateChanged\n" + A);
         }
 
-        void dgvList_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            MessageBox.Show("Cambio algo en la Grilla\nCellValueChanged");
-        }
-
-        private void dgvList_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {
-            e.Cancel = true;
-            MessageBox.Show(this, e.Exception.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        void GetDataView(DataTable data)
+        void GetDataView(object data)
         {
             //SourceBinding.CurrentItemChanged -= SourceBinding_CurrentItemChanged;
-            //dgvList.DataSource = null;
+            dgvList.DataSource = null;
             //SourceBinding.DataSource = data;
             //dgvList.DataSource = SourceBinding;
             //SourceBinding.CurrentItemChanged += SourceBinding_CurrentItemChanged;
             dgvList.DataSource = data;
 
-            CellColor(data);
+            //CellColor(data);
         }
 
         void CellColor(DataTable dT)
@@ -324,7 +335,7 @@ namespace GraphicsCSV
 
         #endregion
 
-        // OK - 28/07/17
+        // Revisar - 17/07/30
         #region bkProgess
 
         int cRecordsErrors = 0;
@@ -332,7 +343,7 @@ namespace GraphicsCSV
         StringBuilder strDetail = new StringBuilder();
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Disparador de ejecucion del Subproceso.
         /// </summary>
         void StarProcess()
@@ -342,13 +353,14 @@ namespace GraphicsCSV
             {
                 showRunProcess(true);
                 tsslProcessStatus.Text = "Loaded";
-                tspbProgress.Maximum = oData.Rows.Count;
+                tspbProgress.Maximum = dtData.Rows.Count;
+                lStatistics.Clear();
                 bkProcess.RunWorkerAsync();
             }
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/30
         /// Evento cuando finaliza el Subproceso.
         /// </summary>
         /// <param name="sender"></param>
@@ -358,7 +370,7 @@ namespace GraphicsCSV
             if (e.Cancelled == true)
             {
                 tsslProcessStatus.Text = "Cancelled";
-                tsslDescription.Text = "Records: " + oData.Rows.Count.ToString();
+                tsslDescription.Text = "Records: " + dtData.Rows.Count.ToString();
                 strDetail.Clear();
                 strDetail.AppendLine("Canceled by user request.");
                 MessageBox.Show(strDetail.ToString());
@@ -374,19 +386,20 @@ namespace GraphicsCSV
             else
             {
                 tsslProcessStatus.Text = "Finalized";
-                tsslDescription.Text = "Records: " + oData.Rows.Count.ToString();
+                tsslDescription.Text = "Records: " + dtData.Rows.Count.ToString();
                 strDetail.Clear();
-                strDetail.AppendLine("Records Processed: " + oData.Rows.Count.ToString());
+                strDetail.AppendLine("Records Processed: " + dtData.Rows.Count.ToString());
                 strDetail.AppendLine("Correct records = " + dtResult.Rows.Count.ToString());
                 strDetail.AppendLine("Records with errors = " + cRecordsErrors.ToString());
-                MessageBox.Show(strDetail.ToString());       
+                MessageBox.Show(strDetail.ToString());
+                GetDataView(lStatistics);
                 RefreshGraphicStatistical();
             }
             showRunProcess(false);
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Evento durante la ejecucion del Subproceso.
         /// </summary>
         /// <param name="sender"></param>
@@ -394,47 +407,83 @@ namespace GraphicsCSV
         void bkProcess_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             tsslProcessStatus.Text = "Working";
-            tsslDescription.Text = "Records: " + e.ProgressPercentage.ToString() + "/" + oData.Rows.Count.ToString();
-            tsslStatus.Text = (((e.ProgressPercentage * 100) / oData.Rows.Count).ToString() + " %");
+            tsslDescription.Text = "Records: " + e.ProgressPercentage.ToString() + "/" + dtData.Rows.Count.ToString();
+            tsslStatus.Text = (((e.ProgressPercentage * 100) / dtData.Rows.Count).ToString() + " %");
             tspbProgress.Value = e.ProgressPercentage;
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// REVISAR - 17/07/30
         /// Evento del Subproceso.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void bkProcess_DoWork(object sender, DoWorkEventArgs e)
         {
-            cRecordsErrors = 0;
-            
-
-            int cRow = 0;
+            cRecordsErrors = 0;                     // Acumulador de filas con error.
+            dtResult = new DataTable("Result");     // Tabla Resultado del proceso.
+            int cRow = 0;                           // Acumulador de filas procesadas.
+            int cColumnId = 1;                      // Acumulador asigna un ID a cada columna.
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            dtResult = new DataTable("Result");
-
-            foreach (DataColumn column in oData.Columns)
-                dtResult.Columns.Add(new DataColumn(column.ColumnName));
-
-            foreach (DataRow row in oData.Rows)
+            // Cantidad de columnas Tablas (Origen => Resultado)
+            foreach (DataColumn column in dtData.Columns)
             {
-                iError = false;
-                worker.ReportProgress(++cRow);
+                if (PrimeraLectura)
+                {
+                    dtResult.Columns.Add(new DataColumn(column.ColumnName));
+                    lItemPropierties.Add(new classItemsPropierties(cColumnId, column.ColumnName));
+                    lStatistics.Add(new classStatistics(cColumnId, column.ColumnName));
+                    cColumnId++;
+                }
+                else
+                {
+                    //dtResult.Clear();
+                    //dtResult.Columns.Add(new DataColumn(lItemPropierties[0].ColumnName));
+
+                }
+            }
+
+            // Recorrer Fila a Fila
+            foreach (DataRow row in dtData.Rows)
+            {
+                iError = false;                     // Restablece a fila sin error.
+                worker.ReportProgress(++cRow);      // Actualiza barra de Proceso.
 
                 if (worker.CancellationPending == true)
                 {
                     e.Cancel = true;
                     dtResult = null;
                     break;
-                }
-                else
+                } 
+                else 
                 {
                     DataRow newRow = dtResult.NewRow();
-                    newRow[0] = processDateTime(row[0].ToString()).ToShortTimeString(); // Columna Fecha  
-                    newRow[1] = processNumber(row[1].ToString());   // Columna Temperatura
-                    newRow[2] = processNumber(row[2].ToString());   // Columna Humedad
+                    // Recorre Columna x columna de la fila seleccioanda.
+                    for (int I = 0; I < dtData.Columns.Count; I++)
+                    {
+                        // Solo TEST forzado "HASTA QUE SE PUEDA ALAMCENAR LA CONFIGURACION"
+                        if (I == 0)
+                            lItemPropierties[I].eDataFormat = classItemsPropierties.DataFormat.Date;
+                        else
+                            lItemPropierties[I].eDataFormat = classItemsPropierties.DataFormat.Number;
+
+                        switch(lItemPropierties[I].eDataFormat)
+                        {
+                            case classItemsPropierties.DataFormat.Text:
+                                newRow[I] = row[I].ToString();
+                                break;
+                            case classItemsPropierties.DataFormat.Number:
+                                newRow[I] = processNumber(row[I].ToString());
+                                lStatistics[I].calcStatistics(processNumber(row[I].ToString()));
+                                break;
+                            case classItemsPropierties.DataFormat.Date:
+                                newRow[I] = processDateTime(row[I].ToString()).ToShortTimeString();
+                                break;
+                        }
+                        if (iError) 
+                            break;
+                    }
 
                     if (!iError)
                         dtResult.Rows.Add(newRow);
@@ -446,11 +495,11 @@ namespace GraphicsCSV
 
         #endregion
 
-        // OK - 28/07/17
+        // OK - 17/07/28
         #region  Metodos
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Mostrar o Ocultar los indicadores de proceso en ejecucion.
         /// </summary>
         /// <param name="Show"></param>
@@ -464,7 +513,7 @@ namespace GraphicsCSV
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Devuelve: DateTime desde un string con el siguiente formato (2017,7,6-19,07,30).
         /// </summary>
         /// <param name="vDateTime"></param>
@@ -495,7 +544,7 @@ namespace GraphicsCSV
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Devuelve: Numero con decimales. 
         /// </summary>
         /// <param name="vNumber"></param>
@@ -506,7 +555,7 @@ namespace GraphicsCSV
         }
 
         /// <summary>
-        /// OK - 28/07/17
+        /// OK - 17/07/28
         /// Devuelve: Array con solo los nombres de los archivos y extencion. 
         /// </summary>
         /// <param name="files"></param>
