@@ -43,7 +43,7 @@ namespace GraphicsCSV
         {
             cmbDataFormat.DataSource = Enum.GetValues(typeof(classItemsPropierties.DataFormat));
             //
-            txtName.Text = oItems.ColumnName;
+            txtName.Text = oItems.ColumnRename;
             txtColor.BackColor = oItems.Color;
             chkEnable.Checked = oItems.Visible;
             cmbDataFormat.SelectedItem = oItems.eDataFormat;
@@ -80,7 +80,7 @@ namespace GraphicsCSV
         {
             if (txtName.Text != string.Empty)
             {
-                oItems.ColumnName = txtName.Text;
+                oItems.ColumnRename = txtName.Text;
                 oItems.Color = txtColor.BackColor;
                 oItems.Visible = chkEnable.Checked;
                 oItems.eDataFormat = (classItemsPropierties.DataFormat)cmbDataFormat.SelectedItem;

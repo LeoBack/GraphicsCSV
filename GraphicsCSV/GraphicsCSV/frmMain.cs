@@ -20,7 +20,7 @@ namespace GraphicsCSV
 
         classManager oCsv;
         List<classItemsPropierties> lItemPropierties;
-        List<classStatistics> lStatistics;
+        List<classItemsStatistics> lStatistics;
         //
         BackgroundWorker bkProcess;
         DataTable dtData;
@@ -28,6 +28,7 @@ namespace GraphicsCSV
         //
         string pathLog = Path.Combine(Application.StartupPath, "Logs");
         string fileLog = string.Empty;
+        string fileLogTemp = string.Empty;
         string[] filter = { "15 minutos", "30 minutos", "60 minutos" };
         bool PrimeraLectura = true;
 
@@ -40,7 +41,7 @@ namespace GraphicsCSV
             InitializeComponent();
             oCsv = new classManager();
             lItemPropierties = new List<classItemsPropierties>();
-            lStatistics = new List<classStatistics>();
+            lStatistics = new List<classItemsStatistics>();
             //
             bkProcess = new BackgroundWorker();
             bkProcess.DoWork += bkProcess_DoWork;
@@ -237,17 +238,22 @@ namespace GraphicsCSV
         private void initDataView()
         {
             DataGridViewTextBoxColumn colId = new DataGridViewTextBoxColumn();
-            colId.Name = "Item";
-            colId.DataPropertyName = "Id";
+            colId.Name = "Nº Columna";
+            colId.DataPropertyName = "IdStatistics";
             colId.ReadOnly = true;
-            colId.Visible = false;
             dgvList.Columns.Add(colId);
 
             DataGridViewTextBoxColumn colName = new DataGridViewTextBoxColumn();
             colName.Name = "Nombre";
-            colName.DataPropertyName = "Name";
+            colName.DataPropertyName = "ColumnName";
             colName.ReadOnly = true;
             dgvList.Columns.Add(colName);
+
+            DataGridViewTextBoxColumn ColFormat = new DataGridViewTextBoxColumn();
+            ColFormat.Name = "Formato";
+            ColFormat.DataPropertyName = "DataFormat";
+            ColFormat.ReadOnly = true;
+            dgvList.Columns.Add(ColFormat);
 
             DataGridViewTextBoxColumn colMin = new DataGridViewTextBoxColumn();
             colMin.Name = "Min";
@@ -296,10 +302,10 @@ namespace GraphicsCSV
 
             if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
-                frmItemProperties frmProperties = new frmItemProperties(lItemPropierties[e.RowIndex]);
-                if (frmProperties.ShowDialog() == DialogResult.OK)
+                frmItemProperties frmProp = new frmItemProperties(lItemPropierties[e.RowIndex]);
+                if (frmProp.ShowDialog() == DialogResult.OK)
                 {
-                    lItemPropierties[e.RowIndex] = frmProperties.oItems;
+                    lItemPropierties[e.RowIndex] = frmProp.oItems;
                     PrimeraLectura = false;
                     StarProcess();
                 }
@@ -429,17 +435,26 @@ namespace GraphicsCSV
             // Cantidad de columnas Tablas (Origen => Resultado)
             foreach (DataColumn column in dtData.Columns)
             {
-                if (PrimeraLectura)
-                {
-                    dtResult.Columns.Add(new DataColumn(column.ColumnName));
-                    lItemPropierties.Add(new classItemsPropierties(cColumnId, column.ColumnName));
-                    lStatistics.Add(new classStatistics(cColumnId, column.ColumnName));
-                    cColumnId++;
+                // Consulto si cambie de archivo?
+                if (fileLog != fileLogTemp)
+                {   // Nuevo
+                    classItemsPropierties oProp = new classItemsPropierties(cColumnId++, column.ColumnName);
+                    lItemPropierties.Add(oProp);
+                    lStatistics.Add(oProp.ConvertSatatistics());
+                    dtResult.Columns.Add(new DataColumn(oProp.ColumnRename));
                 }
                 else
-                {
-                    //dtResult.Clear();
-                    //dtResult.Columns.Add(new DataColumn(lItemPropierties[0].ColumnName));
+                {   // Reconfigurar
+                    foreach (classItemsPropierties iProp in lItemPropierties)
+                    {
+                        if (column.ColumnName == iProp.ColumnName)
+                        {
+                            dtResult.Columns.Add(new DataColumn(iProp.ColumnRename));
+                            classItemsPropierties oProp = new classItemsPropierties(iProp.IdItemsPropierties, column.ColumnName, iProp.ColumnRename);
+                            lItemPropierties.Add(oProp);
+                            lStatistics.Add(oProp.ConvertSatatistics());
+                        }
+                    }
 
                 }
             }

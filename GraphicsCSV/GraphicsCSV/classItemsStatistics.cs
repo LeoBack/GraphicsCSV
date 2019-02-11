@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GraphicsCSV
 {
-    public class classStatistics
+    public class classItemsStatistics
     {
         #region Atributos y Propiedades
 
@@ -24,7 +24,7 @@ namespace GraphicsCSV
 
         #region Constructores
 
-        public classStatistics()
+        public classItemsStatistics()
         {
             IdStatistics = 0;
             ColumnName = string.Empty;
@@ -34,11 +34,11 @@ namespace GraphicsCSV
             Avg = 0;
         }
 
-        public classStatistics(int vIdStatistics, string vColumnName)
+        public classItemsStatistics(int vIdStatistics, string vColumnName, string vDataFormat)
         {
             IdStatistics = vIdStatistics;
             ColumnName = vColumnName;
-            DataFormat = string.Empty;
+            DataFormat = vDataFormat;
             Min = 0;
             Max = 0;
             Avg = 0;

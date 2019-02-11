@@ -13,11 +13,13 @@ namespace GraphicsCSV
         #region Atributos y Propiedades
 
         public enum DataFormat { Number, Text, Date }
-        public int IdItemsPropierties { set; get; } // ID
-        public string ColumnName { set; get; }      // Nombre
-        public Color Color { set; get; }            // Color
-        public bool Visible { set; get; }           // Mostrar o Ocultar
-        public DataFormat eDataFormat { set; get; } // Tipo de Dato
+        public int IdItemsPropierties { set; get; }
+        public string ColumnName { set; get; }
+        public string ColumnRename { set; get; }
+        public bool ColumnBase { set; get; }
+        public Color Color { set; get; }
+        public bool Visible { set; get; }
+        public DataFormat eDataFormat { set; get; }
 
         #endregion
 
@@ -27,6 +29,8 @@ namespace GraphicsCSV
         {
             IdItemsPropierties = 0;
             ColumnName = "Value Name";
+            ColumnRename = ColumnName;
+            ColumnBase = false;
             Color = RandomColor();
             Visible = true;
             eDataFormat = DataFormat.Text;
@@ -36,6 +40,30 @@ namespace GraphicsCSV
         {
             IdItemsPropierties = vIdItemsPropierties;
             ColumnName = vColumnName;
+            ColumnRename = ColumnName;
+            ColumnBase = false;
+            Color = RandomColor();
+            Visible = true;
+            eDataFormat = DataFormat.Text;
+        }
+
+        public classItemsPropierties(int vIdItemsPropierties, string vColumnName, string vColumnRename)
+        {
+            IdItemsPropierties = vIdItemsPropierties;
+            ColumnName = vColumnName;
+            ColumnRename = vColumnRename;
+            ColumnBase = false;
+            Color = RandomColor();
+            Visible = true;
+            eDataFormat = DataFormat.Text;
+        }
+
+        public classItemsPropierties(int vIdItemsPropierties, string vColumnName, bool vColumnBase)
+        {
+            IdItemsPropierties = vIdItemsPropierties;
+            ColumnName = vColumnName;
+            ColumnRename = ColumnName;
+            ColumnBase = vColumnBase;
             Color = RandomColor();
             Visible = true;
             eDataFormat = DataFormat.Text;
@@ -45,15 +73,20 @@ namespace GraphicsCSV
         {
             IdItemsPropierties = vIdItemsPropierties;
             ColumnName = vColumnName;
+            ColumnRename = ColumnName;
+            ColumnBase = false;
             Color = RandomColor();
             Visible = true;
             eDataFormat = vDataFormat;
         }
 
-        public classItemsPropierties(int vIdItemsPropierties, string vColumnName, Color vColor, bool vChk, DataFormat vDataFormat)
+        public classItemsPropierties(int vIdItemsPropierties, string vColumnName, string vColumnRename, 
+            bool vColumnBase, Color vColor, bool vChk, DataFormat vDataFormat)
         {
             IdItemsPropierties = vIdItemsPropierties;
             ColumnName = vColumnName;
+            ColumnRename = vColumnRename;
+            ColumnBase = vColumnBase;
             Color = vColor;
             Visible = vChk;
             eDataFormat = vDataFormat;
@@ -62,6 +95,13 @@ namespace GraphicsCSV
         #endregion
 
         #region Metodos
+
+        public classItemsStatistics ConvertSatatistics()
+        {
+            classItemsStatistics oE = new classItemsStatistics(
+                IdItemsPropierties, ColumnRename, eDataFormat.ToString());
+            return oE;
+        }
 
         public Color RandomColor()
         {
